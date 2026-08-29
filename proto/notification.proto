@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package orderflow.notification.v1;
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/RicardoEmm/order-flow/notification-service/grpc";
+
+service NotificationService {
+  rpc GetNotificationHistory (GetNotificationHistoryRequest) returns (NotificationHistoryResponse);
+}
+
+enum NotificationType {
+  NOTIFICATION_TYPE_UNKNOWN = 0;
+  WELCOME = 1;
+  ORDER_CONFIRMATION = 2;
+  ORDER_CANCELLATION = 3;
+}
+
+enum NotificationChannel {
+  NOTIFICATION_CHANNEL_UNKNOWN = 0;
+  EMAIL = 1;
+  SMS = 2;
+}
+
+enum NotificationStatus {
+  NOTIFICATION_STATUS_UNKNOWN = 0;
+  PENDING = 1;
+  SENT = 2;
+  FAILED = 3;
+}
+
+message GetNotificationHistoryRequest {
+  string user_id = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+message Notification {
+  string id = 1;
+  string user_id = 2;
+  NotificationType type = 3;
+  NotificationChannel channel = 4;
+  string subject = 5;
+  string content = 6;
+  NotificationStatus status = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp sent_at = 9;
+}
+
+message NotificationHistoryResponse {
+  repeated Notification notifications = 1;
+}

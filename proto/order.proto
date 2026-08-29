@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package orderflow.order.v1;
+
+option java_package = "com.orderflow.orderservice.grpc";
+option java_multiple_files = true;
+
+import "catalog.proto";
+
+service OrderService {
+  rpc CreateOrder (CreateOrderRequest) returns (OrderResponse);
+  rpc GetOrder (GetOrderRequest) returns (OrderResponse);
+  rpc ListOrderByUser (ListOrderByUserRequest) returns (ListOrdersResponse);
+  rpc CancelOrder (CancelOrderRequest) returns (OrderResponse);
+}
+
+enum OrderStatus {
+  UNKNOWN = 0;
+  CREATED = 1;
+  CONFIRMED = 2;
+  CANCELLED = 3;
+}
+
+message OrderBase {
+  string user_id = 1;
+  OrderStatus status = 2;
+  orderflow.catalog.v1.Money total_amount = 3;
+}
+
+message OrderItemDetail {
+    string product_id = 1;
+    string product_name_snapshot = 2;
+    orderflow.catalog.v1.Money unit_price = 3;
+    int32 quantity = 4;
+    orderflow.catalog.v1.Money subtotal = 5;
+}
+
+message CreateOrderRequest {
+    string user_id = 1;
+    repeated orderflow.catalog.v1.Item items = 2;
+}
+
+message GetOrderRequest {
+  string order_id = 1;
+}
+
+message OrderResponse {
+    string id = 1;
+    OrderBase order_base = 2;
+    repeated OrderItemDetail items = 3;
+}
+
+message ListOrderByUserRequest {
+  string user_id = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+message ListOrdersResponse {
+  repeated OrderResponse orders = 1;
+}
+
+message CancelOrderRequest {
+  string order_id = 1;
+  string reason = 2;
+}

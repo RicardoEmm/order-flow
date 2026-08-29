@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package orderflow.catalog.v1;
+
+option java_package = "com.orderflow.catalogservice.grpc";
+option java_multiple_files = true;
+option go_package = "github.com/RicardoEmm/order-flow/catalog-service/grpc";
+
+import "google/protobuf/timestamp.proto";
+
+service CatalogService {
+  rpc CreateProduct (CreateProductRequest) returns (ProductResponse);
+  rpc GetProduct (GetProductRequest) returns (ProductResponse);
+  rpc ListProducts (ListProductsRequest) returns (ListProductsResponse);
+  rpc CheckStock (CheckStockRequest) returns (CheckStockResponse);
+  rpc ReserveStock (ReserveStockRequest) returns (ReserveStockResponse);
+  rpc ReleaseStock (ReleaseStockRequest) returns (ReleaseStockResponse);
+}
+
+message Money {
+    int64 units = 1;
+    int32 cents = 2;
+    string currency = 3;
+}
+
+message ProductBase {
+  string sku = 1;
+  string name = 2;
+  string category_id = 3;
+  Money price = 4;
+  CatalogStatus status = 5;
+}
+
+message Item {
+  string product_id = 1;
+  int32 quantity = 2;
+}
+
+enum CatalogStatus {
+  UNKNOWN = 0;
+  ACTIVE = 1;
+  DISCONTINUED = 2;
+}
+
+message CreateProductRequest {
+  ProductBase product_base = 1;
+  optional string description = 2;
+}
+
+message ProductResponse {
+  string id =  1;
+  ProductBase product_base = 2;
+  string description = 3;
+  string category_name = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message GetProductRequest {
+  string product_id = 1;
+}
+
+message ListProductsRequest {
+  string category_id = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+message ListProductsResponse {
+  repeated ProductResponse products = 1;
+}
+
+message CheckStockRequest {
+  string product_id = 1;
+  int32 quantity = 2;
+}
+
+message CheckStockResponse {
+  bool available = 1;
+  int32 quantity_available = 2;
+}
+
+message ReserveStockRequest {
+  string order_id = 1;
+  repeated Item items = 2;
+}
+
+message ReserveStockResponse {
+    bool success = 1;
+    repeated string unavailable_items = 2;
+}
+
+message ReleaseStockRequest {
+  string order_id = 1;
+}
+
+message ReleaseStockResponse {
+  bool success = 1;
+}
